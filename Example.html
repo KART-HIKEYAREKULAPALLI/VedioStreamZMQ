@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en"> 
+<head>
+<meta charset="utf-8"/>
+    <title>LIVE STREAM</title>
+    <script src="JSMQ.js"></script>
+    <script>
+        var dealer = new JSMQ.Dealer();
+        dealer.connect("ws://localhost:8000");
+
+        // we must wait for the dealer to be connected before we can send messages, any messages we are trying to send
+        // while the dealer is not connected will be dropped
+        dealer.sendReady = function () {
+            document.getElementById("Connection").disabled = "";
+        };
+         dealer.onMessage = function(message) {
+            var base64Str=message.popString();
+            //console.log(base64Str);
+            var img='data:image/png;base64,'+ base64Str;
+            document.getElementById('output').src=img;
+            send();
+        };
+        function send() {
+            var message = new JSMQ.Message();
+            message.addString("SEND FRAME");
+            dealer.send(message);
+        };
+    </script>
+</head>
+<body> 
+    <h2>Webstream</h2> 
+    <button id="Connection" disabled="disabled" onclick="javascript:send();">Click To Connect</button> 
+    <br>
+    <br>
+    <img id="output" width="300" height="300">
+</body>
+</html>
